@@ -83,8 +83,8 @@ At the end of the process, the vehicle is able to drive autonomously around the 
 
 The final model architecture (model.py lines 63-75) consisted of a convolution neural network with the following layers.
 
-| Layer           		|     Description	        					                 |
-|:-------------------:|:--------------------------------------------------:|
+| Layer           		|     Description	        					                      |
+|:-------------------:|:-------------------------------------------------------:|
 | Input            		| 160x320x3 RGB image   							|
 | Lamda               | Normalization |
 | Cropping            | (70,25),(0,0) |
