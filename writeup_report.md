@@ -14,13 +14,9 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 
-[image1]: ./examples/placeholder.png "Model Visualization"
-[image2]: ./examples/placeholder.png "Grayscaling"
-[image3]: ./examples/placeholder_small.png "Recovery Image"
-[image4]: ./examples/placeholder_small.png "Recovery Image"
-[image5]: ./examples/placeholder_small.png "Recovery Image"
-[image6]: ./examples/placeholder_small.png "Normal Image"
-[image7]: ./examples/placeholder_small.png "Flipped Image"
+[image1]: ./my-examples/center_lane.jpg "Center Lane Driving"
+[image2]: ./my-examples/normal.jpg "Normal Image"
+[image3]: ./my-examples/flipped.jpg "Flipped Image"
 
 ## Rubric Points
 ### Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/432/view) individually and describe how I addressed each point in my implementation.  
@@ -33,11 +29,12 @@ The goals / steps of this project are the following:
 My project includes the following files:
 * model.py containing the script to create and train the model
 * drive.py for driving the car in autonomous mode
-* model.zip for the compressed file of model.h5 containing a trained convolution neural network
+* model.h5 containing a trained convolution neural network
+* video.mp4 for the video recoding of the car driving autonomously
 * writeup_report.md  summarizing the results
 
 #### 2. Submission includes functional code
-Using the Udacity provided simulator and my drive.py file, the car can be driven autonomously around the track by executing 
+Using the Udacity provided simulator and my drive.py file, the car can be driven autonomously around the track by executing
 ```sh
 python drive.py model.h5
 ```
@@ -50,76 +47,76 @@ The model.py file contains the code for training and saving the convolution neur
 
 #### 1. An appropriate model architecture has been employed
 
-My model consists of a convolution neural network with 3x3 filter sizes and depths between 32 and 128 (model.py lines 18-24)
-
-The model includes RELU layers to introduce nonlinearity (code line 20), and the data is normalized in the model using a Keras lambda layer (code line 18).
+My model is based on the neural network developed by NVIDIA for driving a real car autonomously. It consists of a normalization layer, five convolution neural network layers  and four fully connected layers. (model.py lines 63-75)
+The data is normalized in the model using a Keras lambda layer (code line 64). The model includes RELU layers to introduce nonlinearity (code line 66-70).
 
 #### 2. Attempts to reduce overfitting in the model
 
-The model contains dropout layers in order to reduce overfitting (model.py lines 21).
-
-The model was trained and validated on different data sets to ensure that the model was not overfitting (code line 10-16). The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
+The model was trained and validated on different data sets to ensure that the model was not overfitting (code line 80-82). The model was tested by running it through the simulator and ensuring that the vehicle could stay on the track.
 
 #### 3. Model parameter tuning
 
-The model used an adam optimizer, so the learning rate was not tuned manually (model.py line 25).
+The model used an adam optimizer and its learning rate is manually set 0.0005 (model.py line 78).
 
 #### 4. Appropriate training data
 
-Training data was chosen to keep the vehicle driving on the road. I used a combination of center lane driving, recovering from the left and right sides of the road ...
-
+Training data was chosen to keep the vehicle driving on the road. I used three camera images (i.e., left, center and right camera images) to train the model. In addition, Flipped images of all three camera images are also used as training data.
 For details about how I created the training data, see the next section.
 
 ### Model Architecture and Training Strategy
 
 #### 1. Solution Design Approach
 
-The overall strategy for deriving a model architecture was to ...
+The overall strategy for deriving a model architecture was to refine the model from a simple sequential model to more powerful convolutional neural network model.
 
-My first step was to use a convolution neural network model similar to the ... I thought this model might be appropriate because ...
+My first step was to use a sequential neural network model and next a convolutional neural network similar to the LeNet model. Finally, I used a NVIDIA model which is proven powerful for driving a real car autonomously. I thought this model might be appropriate because multiple convolutional network connections make it easy to extract the features of images correctly.
 
-In order to gauge how well the model was working, I split my image and steering angle data into a training and validation set. I found that my first model had a low mean squared error on the training set but a high mean squared error on the validation set. This implied that the model was overfitting.
+In order to gauge how well the model was working, I split my image and steering angle data into a training and validation set. In the first sequential model, a mean squared error (MSE) on the training set and the validation set was high. After adopting a convolutional network model, I could get the reasonable MSE on both data sets.
 
-To combat the overfitting, I modified the model so that ...
+Next, I fine-tuned the number of epochs, augmented the data set by applying three camera images (i.e., a center, left and right camera images).
 
-Then I ...
-
-The final step was to run the simulator to see how well the car was driving around track one. There were a few spots where the vehicle fell off the track... to improve the driving behavior in these cases, I ....
+The final step was to run the simulator to see how well the car was driving around track one. There was no problem on the straight road. However, the vehicle fell off the track when the road is sharply curvy. To improve the driving behavior in these cases, I collected more data and augmented the data set by flipping.
 
 At the end of the process, the vehicle is able to drive autonomously around the track without leaving the road.
 
 #### 2. Final Model Architecture
 
-The final model architecture (model.py lines 18-24) consisted of a convolution neural network with the following layers and layer sizes ...
+The final model architecture (model.py lines 63-75) consisted of a convolution neural network with the following layers.
 
-Here is a visualization of the architecture (note: visualizing the architecture is optional according to the project rubric)
-
-![alt text][image1]
+| Layer           		|     Description	        					|
+|:-------------  ----:|:---------------------------------:|
+| Input            		| 160x320x3 RGB image   							|
+| Lamda               | Normalization |
+| Cropping            | (70,25),(0,0) |
+| Convolution 5x5    	| 1x1 stride, valid padding, kernel 24 |
+| RELU				       	|												|
+| Convolution 5x5     | 1x1 stride, valid padding, kernel 36 |
+| RELU                | |
+| Convolution 5x5     | 1x1 stride, valid padding, kernel 48 |
+| RELU                | |
+| Convolution 3x3     | 1x1 stride, valid padding, kernel 64 |
+| RELU                | |
+| Convolution 3x3     | 1x1 stride, valid padding, kernel 64 |
+| RELU                | |
+| Flatten             | |
+| Fully connected    	| outputs 100|
+| Fully connected     | outputs 50 |
+| Fully connected     | outputs 10 |
+| Fully connected     | outputs 1 |
 
 #### 3. Creation of the Training Set & Training Process
 
 To capture good driving behavior, I first recorded two laps on track one using center lane driving. Here is an example image of center lane driving:
 
+![alt text][image1]
+
+To augment the data sat, I also flipped images and angles thinking that this would reduce the overfitting problem. On the track, a car only turns left. So it has the left turn bias. By applying the flipping technique, this bias can be addressed. For example, here is an image that has then been flipped:
+
 ![alt text][image2]
-
-I then recorded the vehicle recovering from the left side and right sides of the road back to center so that the vehicle would learn to .... These images show what a recovery looks like starting from ... :
-
 ![alt text][image3]
-![alt text][image4]
-![alt text][image5]
 
-Then I repeated this process on track two in order to get more data points.
+After the collection process, I had 6573 number of data points. I then preprocessed this data by applying the normalization. In 160x320 pixel images, there exists data not useful for the autonomous driving. So I cropped the images. It also speeds up the training task.
 
-To augment the data sat, I also flipped images and angles thinking that this would ... For example, here is an image that has then been flipped:
+I finally randomly shuffled the data set and put 20% of the data into a validation set.
 
-![alt text][image6]
-![alt text][image7]
-
-Etc ....
-
-After the collection process, I had X number of data points. I then preprocessed this data by ...
-
-
-I finally randomly shuffled the data set and put Y% of the data into a validation set.
-
-I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was Z as evidenced by ... I used an adam optimizer so that manually training the learning rate wasn't necessary.
+I used this training data for training the model. The validation set helped determine if the model was over or under fitting. The ideal number of epochs was around 5 as evidenced by plotting the progress of training and validation eror based on the epoch. I used an adam optimizer and the learning rate was set 0.0005 so that the optimizer can converge to the optimum.
